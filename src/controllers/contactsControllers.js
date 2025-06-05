@@ -1,17 +1,14 @@
-import { getAllContacts, getContactById, createContact, patchContact, deleteContact } from '../services/contacts.js';
+import {
+  getAllContacts,
+  getContactById,
+  createContact,
+  patchContact,
+  deleteContact,
+} from '../services/contacts.js';
 import createHttpError from 'http-errors';
-export const handleGetAllContacts = async (req, res, next) => {
-  try {
-    const contacts = await getAllContacts();
-    res.status(200).json({
-      status: 200,
-      message: 'Successfully found contacts!',
-      data: contacts,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 export const handleGetContactById = async (req, res, next) => {
   const { contactId } = req.params;
@@ -66,8 +63,8 @@ export const patchContactController = async (req, res, next) => {
     data: result,
   });
 };
-export const deleteContactController = async(reg, res, next)=>{
-  const {contactId} = reg.params; 
+export const deleteContactController = async (req, res, next) => {
+  const { contactId } = req.params;
   const contact = await deleteContact(contactId);
 
   if (!contact) {
@@ -76,4 +73,27 @@ export const deleteContactController = async(reg, res, next)=>{
   }
 
   res.status(204).send();
+};
+export const getContactsController = async (req, res) => {
+  const { page, perPage, totalItems, totalPage } = parsePaginationParams(
+    req.query,
+  );
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+  const filter = parseFilterParams(req.query);
+
+  const contacts = await getAllContacts({
+    page,
+    perPage,
+    totalItems,
+    totalPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
+
+  res.json({
+    status: 200,
+    message: 'Successfully found contacts!',
+    data: contacts,
+  });
 };

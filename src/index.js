@@ -12,3 +12,8 @@ const startApp = async () => {
 };
 
 startApp();
+
+export const SORT_ORDER = {
+  ASC: 'asc',
+  DESC: 'desc',
+};
