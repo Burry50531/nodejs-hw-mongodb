@@ -10,7 +10,7 @@ import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import { createContactSchema } from '../validation/contactsValidation.js';
 import { isValidId } from '../middlewares/isValidId.js';
-import { updateContactSchema } from '../validation/contactsValidation.js';
+
 import { addContactSchema, updateContactSchema } from '../validation/contactsValidation.js';
 
 const router = express.Router();
