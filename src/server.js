@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import contactRouter from './routes/contacts.js';
+import contactsRouter from './routes/contactsRouter.js';
 import { getAllContact, getContactById } from './services/contacts.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
