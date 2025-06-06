@@ -6,7 +6,6 @@ import {
   patchContactController,
   deleteContactController,
 } from '../controllers/contactsControllers.js';
-import { addContactSchema, updateContactSchema } from '../validation/contactsValidation.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import { createContactSchema } from '../validation/contactsValidation.js';
