@@ -1,10 +1,10 @@
 import express from 'express';
 import cors from 'cors';
-import contactRouter from './routers/contacts.js';
+import contactRouter from './routes/contacts.js';
 import { getEnvVar } from './utils/getEnvVar.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import authRouter from './routers/auth.js';
+import authRouter from './routes/auth.js';
 import cookieParser from 'cookie-parser';
 
 export const setupServer = () => {
