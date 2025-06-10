@@ -1,101 +1,70 @@
+import { SORT_ORDER } from '../constants/index.js';
+import { ContactsCollection } from '../db/models/contact.js';
+import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
-import ContactCollection from '../db/models/contact.js';
-import { calcPaginationData } from '../utils/calcPaginationData.js';
-import { typeList } from '../constants/contacts.js';
-
-export const getContacts = async ({
+export const getAllContacts = async ({
   page = 1,
   perPage = 10,
+  sortOrder = SORT_ORDER.ASC,
   sortBy = 'name',
-  sortOrder = 'asc',
-  query = {},
+  filter = {},
+  userId,
 }) => {
-  console.log('Final query before passing:', query);
-
-  const filter = {};
-
-  console.log('MongoDB query before filter processing:', query);
-
-  if (query.userId) {
-    filter.userId = query.userId;
-  }
-
-  if (query.contactType && typeList.includes(query.contactType)) {
-    filter.contactType = query.contactType;
-  }
-
-  if (query.isFavourite !== undefined) {
-    filter.isFavourite = query.isFavourite;
-  }
-  console.log('Final MongoDB Query Filter before search:', query);
-  console.log('Final MongoDB Query Filter:', filter);
-
+  const limit = perPage;
   const skip = (page - 1) * perPage;
-  const sortOptions = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
 
-  console.log('Final MongoDB Sort Options:', sortOptions);
+  const contactsQuery = ContactsCollection.find({ userId });
 
-  const totalItems = await ContactCollection.countDocuments(filter);
+  if (filter.contactType) {
+    contactsQuery.where('contactType').equals(filter.contactType);
+  }
 
-  console.log('MongoDB Filter Applied:', filter);
-  console.log('Filter passed to MongoDB:', filter);
-  console.log('Final MongoDB Query Filter before search:', filter);
-  console.log('Filter before applying to MongoDB:', filter);
-  console.log('Final Filter before MongoDB query:', filter);
-  console.log('Filter before MongoDB query:', filter);
+  if ('isFavourite' in filter) {
+    contactsQuery.where('isFavourite').equals(filter.isFavourite);
+  }
 
-  console.log('Final Filter before MongoDB query:', filter);
+  const [contactsCount, contacts] = await Promise.all([
+    ContactsCollection.find().merge(contactsQuery).countDocuments(),
+    contactsQuery
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortBy]: sortOrder })
+      .exec(),
+  ]);
 
-  const data = await ContactCollection.find(filter)
-    .sort(sortOptions)
-    .skip(skip)
-    .limit(perPage);
-
-  const paginationData = calcPaginationData({ page, perPage, totalItems });
+  const paginationData = calculatePaginationData(contactsCount, perPage, page);
 
   return {
-    data,
-    totalItems,
+    data: contacts,
     ...paginationData,
   };
 };
 
-export const getContact = (contactId, userId) => {
-  return ContactCollection.findOne({ _id: contactId, userId });
+export const getContactById = async (contactId, userId) => {
+  const contact = await ContactsCollection.findOne({ _id: contactId, userId });
+  return contact;
 };
 
-export const addContact = (payload) => {
-  return ContactCollection.create(payload);
+export const createContact = async (payload) => {
+  const contact = await ContactsCollection.create(payload);
+  return contact;
 };
 
-export const upsertContact = async (
-  contactId,
-  userId,
-  payload,
-  option = {},
-) => {
-  const { upsert } = option;
-  const updatedContact = await ContactCollection.findOneAndUpdate(
+export const deleteContact = async (contactId, userId) => {
+  const contact = await ContactsCollection.findOneAndDelete({
+    _id: contactId,
+    userId,
+  });
+
+  return contact;
+};
+
+export const updateContact = async (contactId, payload, userId) => {
+  return ContactsCollection.findOneAndUpdate(
     { _id: contactId, userId },
     payload,
-    { new: true, upsert },
-  );
-
-  if (!updatedContact) return null;
-
-  return {
-    data: updatedContact,
-    isNew: upsert && !updatedContact._id.equals(contactId),
-  };
-};
-
-export const updateContactById = async (contactId, userId, payload) => {
-  return ContactCollection.findOneAndUpdate(
-    { _id: contactId, userId },
-    payload,
-    { new: true },
+    {
+      new: true,
+    },
   );
 };
-
-export const deleteContactById = async (contactId, userId) =>
-  ContactCollection.findOneAndDelete({ _id: contactId, userId });

@@ -1,22 +1,50 @@
 import express from 'express';
-import cors from 'cors';
-import contactRouter from './routers/contacts.js';
 import { getEnvVar } from './utils/getEnvVar.js';
+import cors from 'cors';
+import pino from 'pino-http';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import authRouter from './routers/auth.js';
+import router from './routers/index.js';
 import cookieParser from 'cookie-parser';
+import { UPLOAD_DIR } from './constants/index.js';
 
-export const setupServer = () => {
+const PORT = Number(getEnvVar('PORT', '3000'));
+
+export const setupServer = async () => {
   const app = express();
+
   app.use(cors());
   app.use(cookieParser());
-  app.use(express.json());
-  app.use('/auth', authRouter);
-  app.use('/contacts', contactRouter);
-  app.use('/contacts/:id', contactRouter);
-  app.use(notFoundHandler);     
-  app.use(errorHandler);  
-  const port = Number(getEnvVar('PORT', 3000));
-  app.listen(port, () => console.log(`Server is running on port ${port}`));
+  app.use('/uploads', express.static(UPLOAD_DIR));
+
+  app.use(
+    pino({
+      transport: {
+        target: 'pino-pretty',
+      },
+    }),
+  );
+
+  app.get('/', (req, res) => {
+    res.send('Helo World!');
+  });
+
+  app.use(router);
+
+  app.use(notFoundHandler);
+
+  app.use(errorHandler);
+
+  try {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use.`);
+    } else {
+      console.error('❌ Failed to start server:', err);
+    }
+    process.exit(1);
+  }
 };

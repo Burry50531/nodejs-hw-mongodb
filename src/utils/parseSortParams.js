@@ -1,16 +1,38 @@
-import { sortList } from '../constants/index.js';
+import { SORT_ORDER } from '../constants/index.js';
 
-export const parseSortParams = ({ sortBy = 'name', sortOrder }, sortFields) => {
-  const parsedSortOrder =
-    Array.isArray(sortList) && sortList.includes(sortOrder?.toLowerCase())
-      ? sortOrder.toLowerCase()
-      : sortList[0];
+const parseSortOrder = (sortOrder) => {
+  const isKnownOrder = [SORT_ORDER.ASC, SORT_ORDER.DESC].includes(sortOrder);
+  if (isKnownOrder) return sortOrder;
+  return SORT_ORDER.ASC;
+};
 
-  const parsedSortBy =
-    Array.isArray(sortFields) && sortFields.includes(sortBy) ? sortBy : 'name';
+const parseSortBy = (sortBy) => {
+  const keysOfContact = [
+    '_id',
+    'name',
+    'phoneNumber',
+    'email',
+    'isFavourite',
+    'contactType',
+    'createdAt',
+    'updatedAt',
+  ];
+
+  if (keysOfContact.includes(sortBy)) {
+    return sortBy;
+  }
+
+  return '_id';
+};
+
+export const parseSortParams = (query) => {
+  const { sortOrder, sortBy } = query;
+
+  const parsedSortOrder = parseSortOrder(sortOrder);
+  const parsedSortBy = parseSortBy(sortBy);
 
   return {
-    sortBy: parsedSortBy,
     sortOrder: parsedSortOrder,
+    sortBy: parsedSortBy,
   };
 };
