@@ -4,7 +4,7 @@ import cors from 'cors';
 import pino from 'pino-http';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import router from './router/index.js';
+import router from './routes/index.js';
 import cookieParser from 'cookie-parser';
 import { UPLOAD_DIR } from './constants/index.js';
 
