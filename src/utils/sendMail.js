@@ -1,24 +1,21 @@
+
 import nodemailer from 'nodemailer';
+
 import { SMTP } from '../constants/index.js';
+
 import { getEnvVar } from '../utils/getEnvVar.js';
 
-const transporter = nodemailer.createTransport({
-  host: getEnvVar(SMTP.SMTP_HOST),
-  port: Number(getEnvVar(SMTP.SMTP_PORT)),
-   secure: Number(getEnvVar(SMTP.SMTP_PORT)) === 465,
-  auth: {
-    user: getEnvVar(SMTP.SMTP_USER),
-    pass: getEnvVar(SMTP.SMTP_PASSWORD),
-  },
-});
 
+const transporter = nodemailer.createTransport({
+    host: getEnvVar(SMTP.SMTP_HOST), // адреса SMTP-сервера (наприклад, smtp-relay.brevo.com)
+    port: Number(getEnvVar(SMTP.SMTP_PORT)), // порт (465 або 587)
+    auth: {
+      user: getEnvVar(SMTP.SMTP_USER), // логін (часто = email)
+      pass: getEnvVar(SMTP.SMTP_PASSWORD), // пароль або API-ключ
+    },
+});
+  
 export const sendEmail = async (options) => {
-  try {
-    const result = await transporter.sendMail(options);
-    console.log('📧 Email sent:', result.messageId);
-    return result;
-  } catch (error) {
-    console.error('❌ Error sending email:', error.message);
-    throw error;
-  }
-};
+    return await transporter.sendMail(options);
+  };
+  

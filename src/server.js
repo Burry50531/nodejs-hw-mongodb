@@ -1,50 +1,33 @@
-import express from 'express';
-import { getEnvVar } from './utils/getEnvVar.js';
-import cors from 'cors';
-import pino from 'pino-http';
-import { errorHandler } from './middlewares/errorHandler.js';
-import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import router from './routes/index.js';
-import cookieParser from 'cookie-parser';
-import { UPLOAD_DIR } from './constants/index.js';
+import express from 'express';           // Express — фреймворк для створення сервера
+import cors from 'cors';                 // CORS — дозволяє крос-доменно робити запити
+import pinoHttp from 'pino-http';        // Pino — для логування запитів у консоль
+import cookieParser from 'cookie-parser';// Для роботи з куками
 
-const PORT = Number(getEnvVar('PORT', '3000'));
+import router from './routers/index.js'; // Основний роутер (він підключає всі маршрути)
+import { errorHandler } from './middlewares/errorHandler.js';       // Обробка помилок
+import { notFoundHandler } from './middlewares/notFoundHandler.js'; // Обробка 404
+import { UPLOAD_DIR } from './constants/index.js';                  // Шлях до папки /uploads
 
-export const setupServer = async () => {
-  const app = express();
 
-  app.use(cors());
-  app.use(cookieParser());
+export const setupServer = () => {
+  const app = express(); // Створюємо екземпляр додатку Express
+
+  app.use(cors()); // Дозволяє запити з будь-якого джерела
+  app.use(pinoHttp()); // Логи всіх запитів
+  app.use(express.json()); // Парсинг JSON з тіла запиту
+  app.use(cookieParser()); // Куки зчитуються і зберігаються в req.cookies
+
   app.use('/uploads', express.static(UPLOAD_DIR));
 
-  app.use(
-    pino({
-      transport: {
-        target: 'pino-pretty',
-      },
-    }),
-  );
-
-  app.get('/', (req, res) => {
-    res.send('Helo World!');
-  });
 
   app.use(router);
 
-  app.use(notFoundHandler);
+  app.use(notFoundHandler); // 404 — якщо маршрут не знайдено
+  app.use(errorHandler);    // 500 — якщо сталася помилка у коді
 
-  app.use(errorHandler);
+  const PORT = process.env.PORT || 3000;
 
-  try {
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  } catch (err) {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Port ${PORT} is already in use.`);
-    } else {
-      console.error('❌ Failed to start server:', err);
-    }
-    process.exit(1);
-  }
+  app.listen(PORT, () => {
+    console.log(`✅ Server is running on http://localhost:${PORT}`);
+  });
 };
