@@ -59,7 +59,7 @@ export const updateContactSchema = Joi.object({
 const dataToValidate = {
   name: 'Anatolii Romanenko',
   phoneNumber: '1234567890',
-  email: 'molodoy25666@gmail.com',
+  email: 'molodoy@gmail.com',
   isFavourite: true,
   contactType: 'work',
 };
