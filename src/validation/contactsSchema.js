@@ -57,12 +57,12 @@ export const updateContactSchema = Joi.object({
 
 
 const dataToValidate = {
-    name: 'A', 
-    phoneNumber: '123',
-    email: 'invalid-email',
-    isFavourite: 'yes', 
-    contactType: 'friend', 
-  };
+  name: 'Anatolii Romanenko',
+  phoneNumber: '1234567890',
+  email: 'molodoy25666@gmail.com',
+  isFavourite: true,
+  contactType: 'work',
+};
   
   const validationResult = createContactSchema.validate(dataToValidate, {
     abortEarly: false, 
