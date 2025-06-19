@@ -1,6 +1,6 @@
 
 import dotenv from 'dotenv';
-dotenv.config(); // Завантажує .env змінні в process.env
+dotenv.config(); 
 
 import { initMongoConnection } from './db/initMongoConnection.js'; // якщо саме така у тебе функція
 import { setupServer } from './server.js'; // твоя назва
