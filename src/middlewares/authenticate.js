@@ -12,6 +12,7 @@ export const authenticate = async (req, res, next) => {
     next(createHttpError(401, 'Please provide Authorization header'));
     return;
   }
+
   const bearer = authHeader.split(' ')[0];
   const token = authHeader.split(' ')[1];
 
@@ -19,11 +20,14 @@ export const authenticate = async (req, res, next) => {
     next(createHttpError(401, 'Auth header should be of type Bearer'));
     return;
   }
+
   const session = await SessionsCollection.findOne({ accessToken: token }); 
+
   if (!session) {
     next(createHttpError(401, 'Session not found'));
     return;
   }
+
   const isAccessTokenExpired =
     new Date() > new Date(session.accessTokenValidUntil);
 

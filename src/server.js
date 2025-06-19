@@ -1,30 +1,41 @@
-import express from 'express';           // Express — фреймворк для створення сервера
-import cors from 'cors';                 // CORS — дозволяє крос-доменно робити запити
-import pinoHttp from 'pino-http';        // Pino — для логування запитів у консоль
-import cookieParser from 'cookie-parser';// Для роботи з куками
 
-import router from './routers/index.js'; // Основний роутер (він підключає всі маршрути)
-import { errorHandler } from './middlewares/errorHandler.js';       // Обробка помилок
-import { notFoundHandler } from './middlewares/notFoundHandler.js'; // Обробка 404
-import { UPLOAD_DIR } from './constants/index.js';                  // Шлях до папки /uploads
+import express from 'express';          
+import cors from 'cors';                 
+import pinoHttp from 'pino-http';        
+import cookieParser from 'cookie-parser';
+
+import router from './routers/index.js'; 
+import { errorHandler } from './middlewares/errorHandler.js';      
+import { notFoundHandler } from './middlewares/notFoundHandler.js'; 
+import { UPLOAD_DIR } from './constants/index.js';                  
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 
 export const setupServer = () => {
-  const app = express(); // Створюємо екземпляр додатку Express
+  const app = express(); 
 
-  app.use(cors()); // Дозволяє запити з будь-якого джерела
-  app.use(pinoHttp()); // Логи всіх запитів
-  app.use(express.json()); // Парсинг JSON з тіла запиту
-  app.use(cookieParser()); // Куки зчитуються і зберігаються в req.cookies
 
+  app.use(cors()); 
+  app.use(pinoHttp()); 
+  app.use(express.json()); 
+  app.use(cookieParser()); 
+
+  
   app.use('/uploads', express.static(UPLOAD_DIR));
+
+  app.use('/api-docs', swaggerDocs());  
 
 
   app.use(router);
+  
 
-  app.use(notFoundHandler); // 404 — якщо маршрут не знайдено
-  app.use(errorHandler);    // 500 — якщо сталася помилка у коді
+  
+  app.use(notFoundHandler); 
+  app.use(errorHandler);    
+  
+  
 
+ 
   const PORT = process.env.PORT || 3000;
 
   app.listen(PORT, () => {

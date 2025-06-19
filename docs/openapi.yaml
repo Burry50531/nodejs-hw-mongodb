@@ -1,0 +1,49 @@
+openapi: 3.1.0
+
+info:
+  version: 1.0.0 
+  title: Contacts app 
+  license:
+    name: Apache 2.0 
+    url: http://www.apache.org/licenses/LICENSE-2.0.html 
+  description: API for managing user contacts:creating, viewing, updating, and deleting.
+
+tags:
+  - name: Contacts
+    description: Operations with contacts.
+  - name: Auth
+    description: Auth operations.
+servers:
+  - url: http://localhost:3000
+    description: Локальний сервер для розробки
+  - url: https://nodejs-hw-mongodb-iy1l.onrender.com
+    description: Продакшн-сервер на Render
+
+paths:
+  /contacts/{contactId}:
+    patch:
+      $ref: ../swagger/paths/contacts/{id}/patch.yaml
+    get:
+      $ref: ../swagger/paths/contacts/{id}/get.yaml
+    delete:
+      $ref: ../swagger/paths/contacts/{id}/delete.yaml
+
+  /contacts:
+    get:
+      $ref: ../swagger/paths/contacts/get.yaml
+    post:
+      $ref: ../swagger/paths/contacts/post.yaml
+
+  /auth/register:
+    post:
+      $ref: ../swagger/paths/auth/register.yaml
+
+  /auth/login:
+    post:
+      $ref: ../swagger/paths/auth/login.yaml
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http 
+      scheme: bearer 
